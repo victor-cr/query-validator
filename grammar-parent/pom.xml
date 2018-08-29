@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.codegans.sql.grammar</groupId>
+    <artifactId>grammar-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>grammar-parent</name>
+
+    <description>Parent module for ANTLR4 grammars</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jdk.version>10</jdk.version>
+        <antlr.version>4.7.1</antlr.version>
+        <antlr4test-maven-plugin.version>1.10</antlr4test-maven-plugin.version>
+    </properties>
+
+    <developers>
+        <developer>
+            <name>Viktor Polishchuk</name>
+            <email>victor2@ukr.net</email>
+            <roles>
+                <role>owner</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <!--<release>${jdk.version}</release>-->
+                        <source>${jdk.version}</source>
+                        <target>${jdk.version}</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
+                    <version>${antlr.version}</version>
+                    <configuration>
+                        <sourceDirectory>${basedir}</sourceDirectory>
+                        <outputDirectory>${project.build.directory}/generated-sources/antlr4/com/codegans/sql/grammar</outputDirectory>
+                        <includes>
+                            <include>*.g4</include>
+                        </includes>
+                        <visitor>true</visitor>
+                        <listener>true</listener>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>antlr4</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>com.khubla.antlr</groupId>
+                    <artifactId>antlr4test-maven-plugin</artifactId>
+                    <version>${antlr4test-maven-plugin.version}</version>
+                    <configuration>
+                        <verbose>false</verbose>
+                        <showTree>false</showTree>
+                        <entryPoint>root</entryPoint>
+                        <grammarName>MySql</grammarName>
+                        <packageName>com.codegans.sql.grammar</packageName>
+                        <caseInsensitiveType>UPPER</caseInsensitiveType>
+                        <exampleFiles>examples/</exampleFiles>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

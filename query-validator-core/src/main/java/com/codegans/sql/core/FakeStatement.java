@@ -1,0 +1,259 @@
+package com.codegans.sql.core;
+
+import java.sql.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicReference;
+
+public class FakeStatement extends StatementValidatorWrapper implements Statement {
+    protected final FakeConnection parent;
+    protected final AtomicReference<EmptyResultSet> resultSet;
+
+    public FakeStatement(StatementValidator validator, FakeConnection parent) {
+        super(validator);
+
+        this.parent = parent;
+        this.resultSet = new AtomicReference<>(null);
+    }
+
+    @Override
+    public ResultSet executeQuery(String sql) throws SQLException {
+        invokeOpened(sql);
+
+        if (validator.validate(sql, Collections.emptyList()) != QueryType.DML_READ) {
+            throw new SQLException("Incorrect query type (expected SELECT query)");
+        }
+
+        return resultSet.updateAndGet(e -> new EmptyResultSet(this));
+    }
+
+    @Override
+    public int executeUpdate(String sql) throws SQLException {
+        invokeOpened();
+
+        if (validator.validate(sql, Collections.emptyList()) == QueryType.DML_READ) {
+            throw new SQLException("Incorrect query type (expected DML update/insert/delete or DDL statement)");
+        }
+
+        resultSet.set(null);
+
+        return 0;
+    }
+
+    @Override
+    public int getMaxFieldSize() throws SQLException {
+        invokeOpened();
+        return 0;
+    }
+
+    @Override
+    public void setMaxFieldSize(int max) throws SQLException {
+        invokeOpened();
+    }
+
+    @Override
+    public int getMaxRows() throws SQLException {
+        invokeOpened();
+        return 0;
+    }
+
+    @Override
+    public void setMaxRows(int max) throws SQLException {
+        invokeOpened();
+    }
+
+    @Override
+    public void setEscapeProcessing(boolean enable) throws SQLException {
+        invokeOpened();
+    }
+
+    @Override
+    public int getQueryTimeout() throws SQLException {
+        invokeOpened();
+        return 0;
+    }
+
+    @Override
+    public void setQueryTimeout(int seconds) throws SQLException {
+        invokeOpened();
+    }
+
+    @Override
+    public void cancel() throws SQLException {
+        invokeOpened();
+    }
+
+    @Override
+    public SQLWarning getWarnings() throws SQLException {
+        invokeOpened();
+        return null;
+    }
+
+    @Override
+    public void clearWarnings() throws SQLException {
+        invokeOpened();
+    }
+
+    @Override
+    public void setCursorName(String name) throws SQLException {
+        invokeOpened();
+    }
+
+    @Override
+    public boolean execute(String sql) throws SQLException {
+        invokeOpened();
+        QueryType type = validator.validate(sql, Collections.emptyList());
+        switch (type) {
+            case DML_READ:
+                resultSet.set(new EmptyResultSet(this));
+                return true;
+            default:
+                resultSet.set(null);
+                return false;
+        }
+    }
+
+    @Override
+    public ResultSet getResultSet() throws SQLException {
+        invokeOpened();
+        return resultSet.get();
+    }
+
+    @Override
+    public int getUpdateCount() throws SQLException {
+        invokeOpened();
+        return 0;
+    }
+
+    @Override
+    public boolean getMoreResults() throws SQLException {
+        invokeOpened();
+        return false;
+    }
+
+    @Override
+    public void setFetchDirection(int direction) throws SQLException {
+        invokeOpened();
+    }
+
+    @Override
+    public int getFetchDirection() throws SQLException {
+        invokeOpened();
+        return ResultSet.FETCH_UNKNOWN;
+    }
+
+    @Override
+    public void setFetchSize(int rows) throws SQLException {
+        invokeOpened();
+    }
+
+    @Override
+    public int getFetchSize() throws SQLException {
+        invokeOpened();
+        return 0;
+    }
+
+    @Override
+    public int getResultSetConcurrency() throws SQLException {
+        invokeOpened();
+        return 0;
+    }
+
+    @Override
+    public int getResultSetType() throws SQLException {
+        invokeOpened();
+        return 0;
+    }
+
+    @Override
+    public void addBatch(String sql) throws SQLException {
+        invokeOpened();
+        // TODO: fix me
+    }
+
+    @Override
+    public void clearBatch() throws SQLException {
+        invokeOpened();
+        // TODO: fix me
+    }
+
+    @Override
+    public int[] executeBatch() throws SQLException {
+        invokeOpened();
+        return new int[0];
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+        invokeOpened();
+        return parent;
+    }
+
+    @Override
+    public boolean getMoreResults(int current) throws SQLException {
+        invokeOpened();
+        return false;
+    }
+
+    @Override
+    public ResultSet getGeneratedKeys() throws SQLException {
+        invokeOpened();
+        return new EmptyResultSet(this);
+    }
+
+    @Override
+    public int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
+        invokeOpened();
+        return 0;
+    }
+
+    @Override
+    public int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public int executeUpdate(String sql, String[] columnNames) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean execute(String sql, int[] columnIndexes) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean execute(String sql, String[] columnNames) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public int getResultSetHoldability() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public void setPoolable(boolean poolable) throws SQLException {
+
+    }
+
+    @Override
+    public boolean isPoolable() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public void closeOnCompletion() throws SQLException {
+
+    }
+
+    @Override
+    public boolean isCloseOnCompletion() throws SQLException {
+        return false;
+    }
+}
